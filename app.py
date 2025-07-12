@@ -2,26 +2,21 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # Enable cross-origin requests (important for frontend)
+CORS(app)
 
+# Basic root route (to confirm the app runs)
 @app.route('/')
 def home():
     return jsonify({"message": "Sale Tracker backend is running!"})
 
-if __name__ == '__main__':
-    app.run(debug=True)
-
-# In-memory store for now
-tracked_items = []
-
+# Route to track a clothing item
 @app.route('/track-item', methods=['POST'])
 def track_item():
     data = request.get_json()
 
-    required_fields = ['name', 'url']
-    for field in required_fields:
-        if field not in data:
-            return jsonify({'error': f'Missing required field: {field}'}), 400
+    # Check for required fields
+    if 'name' not in data or 'url' not in data:
+        return jsonify({"error": "Missing required fields: name and url"}), 400
 
     item = {
         'name': data['name'],
@@ -30,11 +25,12 @@ def track_item():
         'color': data.get('color')
     }
 
-    tracked_items.append(item)
-    return jsonify({'message': 'Item tracked successfully', 'item': item}), 201
+    return jsonify({"message": "Item tracked successfully", "item": item}), 201
 
+# View tracked items (fake list for now)
 @app.route('/tracked-items', methods=['GET'])
-def get_tracked_items():
-    return jsonify(tracked_items), 200
+def get_items():
+    return jsonify([{"name": "Sample item"}]), 200
 
-    
+if __name__ == '__main__':
+    app.run(debug=True)
